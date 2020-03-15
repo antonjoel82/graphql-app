@@ -1,4 +1,6 @@
 const graphql = require('graphql')
+const { ApplicationModel: Application } = require('../models/application')
+const { CompanyModel: Company } = require('../models/company')
 
 const {
   // buildSchema,
@@ -6,40 +8,9 @@ const {
   GraphQLString,
   GraphQLList,
   GraphQLID,
-  GraphQLSchema
+  GraphQLSchema,
+  GraphQLNonNull
 } = graphql
-
-// Dummy data
-const COMPANIES = [
-  { id: '0', name: 'Apple', values: ['smart'] },
-  { id: '1', name: 'Olla', values: ['autonomy', 'ownership'] },
-  { id: '2', name: 'MindSource', values: [] },
-  { id: '3', name: 'Sourcegraph', values: ['smart', 'friendly', 'transparent'] }
-]
-
-const APPLICATIONS = [
-  {
-    id: '1',
-    companyId: '1',
-    position: 'Front End Developer',
-    coverLetter: 'This is the cover letter yo',
-    tags: ['frontend', 'react', 'communication']
-  },
-  {
-    id: '2',
-    companyId: '0',
-    position: 'Full Stack Engineer',
-    coverLetter: 'This is the cover #2 letter yo',
-    tags: ['fullstack', 'java', 'typescript']
-  },
-  {
-    id: '3',
-    companyId: '1',
-    position: 'Full Stack Developer',
-    coverLetter: 'This is a full stack cover letter yo',
-    tags: ['fullstack', 'typescript', 'python', 'communication']
-  }
-]
 
 const CompanyType = new GraphQLObjectType({
   name: 'Company',
@@ -50,7 +21,7 @@ const CompanyType = new GraphQLObjectType({
     applications: {
       type: new GraphQLList(ApplicationType),
       resolve(parent, args) {
-        return APPLICATIONS.filter(app => app.companyId === parent.id)
+        return Application.where({ companyId: parent.id }).exec()
       }
     }
   })
@@ -63,7 +34,7 @@ const ApplicationType = new GraphQLObjectType({
     company: {
       type: CompanyType,
       resolve(parent, args) {
-        return COMPANIES.find(comp => comp.id === parent.companyId)
+        return Company.findById(parent.companyId)
       }
     },
     position: { type: GraphQLString },
@@ -79,33 +50,76 @@ const RootQuery = new GraphQLObjectType({
       type: ApplicationType,
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
-        return APPLICATIONS.find(app => args.id === app.id)
+        return Application.findById(arg.id)
       }
     },
     company: {
       type: CompanyType,
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
-        return COMPANIES.find(comp => args.id === comp.id)
+        return Company.findById(arg.id)
       }
     },
     companies: {
       type: new GraphQLList(CompanyType),
       resolve(parent, args) {
-        return COMPANIES
+        return Company.find().exec()
       }
     },
     applications: {
       type: new GraphQLList(ApplicationType),
       resolve(parent, args) {
-        return APPLICATIONS
+        return Application.find().exec()
+      }
+    }
+  }
+})
+
+const Mutation = new GraphQLObjectType({
+  name: 'Mutation',
+  fields: {
+    addCompany: {
+      type: CompanyType,
+      args: {
+        name: { type: new GraphQLNonNull(GraphQLString) },
+        values: { type: new GraphQLList(GraphQLString) }
+      },
+      resolve(parent, args) {
+        let company = new Company({
+          name: args.name,
+          values: args.values
+        })
+
+        console.debug(`Saving new Company: ${JSON.stringify(company)}`)
+        return company.save()
+      }
+    },
+    addApplication: {
+      type: ApplicationType,
+      args: {
+        position: { type: new GraphQLNonNull(GraphQLString) },
+        coverLetter: { type: GraphQLString },
+        tags: { type: new GraphQLList(GraphQLString) },
+        companyId: { type: new GraphQLNonNull(GraphQLID) }
+      },
+      resolve(parent, args) {
+        let application = new Application({
+          position: args.position,
+          coverLetter: args.coverLetter,
+          tags: args.tags,
+          companyId: args.companyId
+        })
+
+        console.debug(`Saving new Application: ${JSON.stringify(application)}`)
+        return application.save()
       }
     }
   }
 })
 
 module.exports = new GraphQLSchema({
-  query: RootQuery
+  query: RootQuery,
+  mutation: Mutation
 })
 
 /**
