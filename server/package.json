@@ -1,0 +1,24 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "Server for GraphQL application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "graphql"
+  ],
+  "author": "Joel Anton",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-graphql": "^0.9.0",
+    "graphql": "^14.6.0",
+    "mongoose": "^5.9.4"
+  },
+  "devDependencies": {
+    "install": "^0.13.0",
+    "prettier": "^1.19.1"
+  }
+}

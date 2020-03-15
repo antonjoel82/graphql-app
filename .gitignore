@@ -1,0 +1,5 @@
+*/node_modules/
+*/package-lock.json
+
+# Keep basic info private until using a better solution
+/server/connectionInfo.js
