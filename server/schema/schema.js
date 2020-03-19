@@ -50,14 +50,14 @@ const RootQuery = new GraphQLObjectType({
       type: ApplicationType,
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
-        return Application.findById(arg.id)
+        return Application.findById(args.id)
       }
     },
     company: {
       type: CompanyType,
       args: { id: { type: GraphQLID } },
       resolve(parent, args) {
-        return Company.findById(arg.id)
+        return Company.findById(args.id)
       }
     },
     companies: {

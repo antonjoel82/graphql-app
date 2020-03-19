@@ -1,0 +1,20 @@
+import { useState } from 'react'
+/**
+ * Hook for managing simple state of an input field.
+ * @param {*} initialValue
+ */
+export const useInput = initialValue => {
+  const [value, setValue] = useState(initialValue)
+
+  return {
+    value,
+    setValue,
+    reset: () => setValue(initialValue || ''),
+    bind: {
+      value,
+      onChange: event => {
+        setValue(event.target.value)
+      }
+    }
+  }
+}

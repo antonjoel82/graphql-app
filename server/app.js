@@ -3,9 +3,13 @@ const GraphQLHTTP = require('express-graphql')
 const schema = require('./schema/schema')
 const mongoose = require('mongoose')
 const { dbUser, pwd } = require('./connectionInfo')
+const cors = require('cors')
 
 const APP_PORT = 8080
 const app = express()
+
+// allow cross-origin requests
+app.use(cors())
 
 mongoose.connect(
   `mongodb+srv://${dbUser}:${pwd}@joel-dev-cluster-k4tai.mongodb.net/test?retryWrites=true&w=majority`,
